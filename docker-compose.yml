@@ -1,0 +1,52 @@
+services:
+  # React frontend
+  frontend:
+    build:
+      context: ./frontend  # Path to your React frontend directory
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Maps port 3000 in the container to port 3000 on your host
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Ensure file watching works inside Docker
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/src
+          target: /app/src
+        - action: rebuild
+          path: ./frontend/package.json
+    stdin_open: true  # Keep the container open
+    tty: true  # Allocate a pseudo-TTY for the container
+    
+  # Django backend
+  backend:
+    build:
+      context: ./backend  # Path to your Django backend directory
+    ports:
+      - "8000:8000"  # Maps port 8000 in the container to port 8000 on your host
+    env_file: 
+      - .env  # Load environment variables from .env in the main directory
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend:/app  # Mounts your Django backend code into the container
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  # MySQL database
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    ports:
+      - "3306:3306"  # Maps port 3306 in the container to port 3306 on your host
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persist data between container restarts
+
+volumes:
+  mysql_data:
