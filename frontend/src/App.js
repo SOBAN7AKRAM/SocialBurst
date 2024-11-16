@@ -1,11 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+
+
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import 'react-toastify/dist/ReactToastify.css';
+import HomeMain from './components/HomePage'
 
 function App() {
   return (
-    <div className="App">
-      <h1>Happy Coding!</h1>
-    </div>
+    <>
+        <div className='flex flex-col gap-10'>
+          <Navbar/>
+          <HomeMain/>
+        </div>
+        <Footer/>
+      
+    </>
   );
 }
 
