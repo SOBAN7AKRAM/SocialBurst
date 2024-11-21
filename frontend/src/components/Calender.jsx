@@ -50,9 +50,7 @@ const localizer = dateFnsLocalizer({
 // Convert date to PKT timezone
 const toPKT = (date) => toZonedTime(date, timeZone);
 
-const initialEvents = [
-  
-];
+const initialEvents = [];
 
 const connectedProfiles = [
   { name: "Facebook", icon: "📘" },
@@ -138,7 +136,7 @@ const CalendarComponent = () => {
 
   return (
     <>
-      <Box w="82.5%" mt="30px">
+      <Box w="calc(100% - 250px)" mt="30px" ml="250px"> {/* Adjust width to fit remaining space after sidebar */}
         <Button
           variant="solid"
           colorScheme="blue"
@@ -146,7 +144,7 @@ const CalendarComponent = () => {
           size="md"
           position="absolute"
           right="23%"
-          mt="-2px"
+          mt="50px"
           onClick={onOpen}
         >
           Create Posts
@@ -214,7 +212,11 @@ const CalendarComponent = () => {
           events={allEvents}
           startAccessor="postDate"
           endAccessor="postDate"
-          style={{ height: "83vh" }}
+          style={{
+            height: "calc(100vh - 50px)", 
+            marginTop: "50px",
+            marginLeft: "5px" 
+          }}
           onSelectEvent={(event) => {
             setEventToDelete(event);
             setIsAlertOpen(true);

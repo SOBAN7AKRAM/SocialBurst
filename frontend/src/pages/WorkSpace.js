@@ -4,7 +4,6 @@ import SideBar from "../components/SideBar";
 import { Flex } from "@chakra-ui/react";
 import CalendarComponent from "../components/Calender";
 
-
 const WorkSpace = () => {
   return (
     <div>
@@ -15,6 +14,6 @@ const WorkSpace = () => {
       </Flex>
     </div>
   );
-}
+};
 
-export default WorkSpace
+export default WorkSpace;

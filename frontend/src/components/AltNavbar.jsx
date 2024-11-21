@@ -8,25 +8,30 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import InnerModal from "./InnerModel";
 
 const AltNavbar = () => {
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
   return (
     <>
       <Flex
-
-      
-        alignItems="center"
-        justifyContent="space-between"
-       
-        width= {["100%", "100%", "100%", "100%", "100%"]}
-        boxShadow={" rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}
-        overflowX="hidden"
-        
-
+        position="fixed"
+        top="0"
+        left="0"
+        width="100%"
+        zIndex="1000"
+        bg="white"
+        boxShadow="rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"
       >
-          <HamburgerIcon fontSize={30} display={["block", "block", "block", "block", "none"]} onClick={() => { setShowModal(true) }} />
-        <Flex alignItems="center" 
-        display={[ "none", "none","none", "none", "flex"]}
-        width= {["0%", "0%", "0%", "0%", "50%"]}>
+        <HamburgerIcon
+          fontSize={30}
+          display={["block", "block", "block", "block", "none"]}
+          onClick={() => {
+            setShowModal(true);
+          }}
+        />
+        <Flex
+          alignItems="center"
+          display={["none", "none", "none", "none", "flex"]}
+          width={["0%", "0%", "0%", "0%", "50%"]}
+        >
           <NavLink to="/">
             <Flex pr="20px" pl="20px" gap="1">
               <Image
@@ -39,7 +44,7 @@ const AltNavbar = () => {
             </Flex>
           </NavLink>
           <Flex>
-            <NavLink to="/publishing">
+            <NavLink to="/Workspace">
               <Box
                 p="1.2rem"
                 pl="28px"
@@ -93,8 +98,11 @@ const AltNavbar = () => {
             </NavLink>
           </Flex>
         </Flex>
-        <Flex alignItems="center" display={[ "none", "none","flex", "flex", "flex"]}
-        width= {["50%", "50%", "80%", "80%", "50%"]}>
+        <Flex
+          alignItems="center"
+          display={["none", "none", "flex", "flex", "flex"]}
+          width={["50%", "50%", "80%", "80%", "50%"]}
+        >
           <NavLink to="#">
             <Flex
               alignItems="center"
@@ -151,18 +159,16 @@ const AltNavbar = () => {
               gap="8px"
               _hover={{ backgroundColor: "#F5F5F5" }}
             >
-              <Text color="#D5C4BA">eve.holt@reqres.in</Text>
-              <FaUserCircle
-                icon="fa-duotone"
-                size="26px"
-                color="#121E66"
-              />
+              <Text color="#D5C4BA">SobanAkram@gmail.com</Text>
+              <FaUserCircle icon="fa-duotone" size="26px" color="#121E66" />
             </Flex>
           </NavLink>
         </Flex>
-        {
-          showModal? <InnerModal show={showModal} setModal={setShowModal}/>:""
-        }
+        {showModal ? (
+          <InnerModal show={showModal} setModal={setShowModal} />
+        ) : (
+          ""
+        )}
       </Flex>
     </>
   );
