@@ -7,7 +7,6 @@ import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaUserCircle } from "react-icons/fa";
 import {
   Box,
   Flex,
@@ -21,7 +20,9 @@ import {
   ModalFooter,
   ModalBody,
   Textarea,
+  Image,
   useToast,
+  Input,
   AlertDialog,
   AlertDialogOverlay,
   AlertDialogContent,
@@ -32,7 +33,7 @@ import {
 import { toZonedTime } from "date-fns-tz";
 import enUS from "date-fns/locale/en-US";
 
-const timeZone = "Asia/Karachi"; // Pakistan Time Zone
+const timeZone = "Asia/Karachi";
 
 const locales = {
   "en-US": enUS,
@@ -46,63 +47,58 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// Convert a date to PKT timezone
+// Convert date to PKT timezone
 const toPKT = (date) => toZonedTime(date, timeZone);
 
-// Initial events with PKT timezone applied
 const initialEvents = [
-  {
-    title: "Big Meeting",
-    allDay: true,
-    start: toPKT(new Date(2022, 9, 26)),
-    end: toPKT(new Date(2022, 9, 26)),
-  },
-  {
-    title: "Vacation",
-    start: toPKT(new Date(2022, 12, 25)),
-    end: toPKT(new Date(2023, 1, 2)),
-  },
-  {
-    title: "Conference",
-    start: toPKT(new Date(2022, 10, 1)),
-    end: toPKT(new Date(2022, 10, 1)),
-  },
+  
 ];
+
+const connectedProfiles = [
+  { name: "Facebook", icon: "📘" },
+  { name: "Twitter", icon: "🐦" },
+  { name: "Instagram", icon: "📸" },
+];
+
 const CalendarComponent = () => {
   const toast = useToast();
-  const [newEvent, setNewEvent] = useState({ title: "", start: new Date(), end: new Date() });
+  const [newEvent, setNewEvent] = useState({ title: "", postDate: new Date(), image: null });
   const [allEvents, setAllEvents] = useState(initialEvents);
+  const [selectedProfiles, setSelectedProfiles] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [imagePreview, setImagePreview] = useState(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
 
-  // Reset the newEvent state to ensure start and end dates are set to current date when modal is opened
-  const handleOpenModal = () => {
-    setNewEvent({ title: "", start: new Date(), end: new Date() }); // Reset to current date
-    onOpen();
-  };
-
-  // Handle adding event with PKT timezone
+  // Handle adding a new event
   const handleAddEvent = () => {
-    if (newEvent.end <= newEvent.start) {
+    if (!newEvent.title) {
       toast({
-        description: "End date must be greater than start date.",
+        description: "Please add a description for your post.",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
-      return; // Do not add the event if the end date is not greater than start date
+      return;
     }
-  
+    if (!selectedProfiles.length) {
+      toast({
+        description: "Please select at least one social media platform.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const eventWithPKT = {
       ...newEvent,
-      start: toPKT(newEvent.start),
-      end: toPKT(newEvent.end),
+      postDate: toPKT(newEvent.postDate),
+      platforms: selectedProfiles,
     };
     setAllEvents([...allEvents, eventWithPKT]);
-
     toast({
-      description: "Great! The post has been added to your queue.",
+      description: "Post added successfully.",
       status: "success",
       duration: 3000,
       isClosable: true,
@@ -110,21 +106,34 @@ const CalendarComponent = () => {
     onClose(); // Close modal after success
   };
 
-  // Handle deleting an event
+  // Handle platform selection toggle
+  const toggleProfileSelection = (profile) => {
+    setSelectedProfiles((prev) =>
+      prev.includes(profile)
+        ? prev.filter((p) => p !== profile) // Remove if already selected
+        : [...prev, profile] // Add if not selected
+    );
+  };
+
+  // Handle image upload
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewEvent((prev) => ({ ...prev, image: file }));
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Open alert dialog for confirming deletion
   const handleDeleteEvent = () => {
-    setAllEvents(allEvents.filter(event => event !== eventToDelete));
+    setAllEvents(allEvents.filter((event) => event !== eventToDelete));
     setIsAlertOpen(false);
     toast({
-      description: "Event deleted successfully.",
+      description: "Post deleted successfully.",
       status: "info",
       duration: 3000,
       isClosable: true,
     });
-  };
-
-  // Handle event changes for input fields
-  const handleEventChange = (field, value) => {
-    setNewEvent((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -138,9 +147,9 @@ const CalendarComponent = () => {
           position="absolute"
           right="23%"
           mt="-2px"
-          onClick={handleOpenModal} // Open modal and reset dates
+          onClick={onOpen}
         >
-          Create Notification
+          Create Posts
         </Button>
 
         {/* Modal for creating a new event */}
@@ -153,56 +162,58 @@ const CalendarComponent = () => {
               </Flex>
             </ModalHeader>
             <ModalBody>
-              <FaUserCircle icon="fa-duotone" size="26px" swapOpacity />
+              <Flex gap={2} mb={4}>
+                {connectedProfiles.map((profile) => (
+                  <Button
+                    key={profile.name}
+                    variant={selectedProfiles.includes(profile.name) ? "solid" : "outline"}
+                    colorScheme="blue"
+                    onClick={() => toggleProfileSelection(profile.name)}
+                  >
+                    {profile.icon} {profile.name}
+                  </Button>
+                ))}
+              </Flex>
+              <Text>Description</Text>
               <Textarea
                 h="100px"
                 mt="10px"
-                onChange={(e) => handleEventChange("title", e.target.value)}
-                placeholder="What would you like to bookmark?"
+                onChange={(e) => setNewEvent((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="What would you like to add in description of post?"
               />
               <Box mt="10px">
-                <Text>Start Date</Text>
-                <DatePicker
-                  selected={newEvent.start}
-                  onChange={(date) => handleEventChange("start", date)}
-                  showTimeSelect
-                  timeFormat="HH:mm"
-                  timeIntervals={15}
-                  dateFormat="MM/dd/yyyy h:mm aa"
-                />
+                <Text>Add Image</Text>
+                <Input type="file" onChange={handleImageUpload} />
+                {imagePreview && <Image src={imagePreview} alt="Preview" mt={2} boxSize="150px" />}
               </Box>
               <Box mt="10px">
-                <Text>End Date</Text>
+                <Text>Post Date</Text>
                 <DatePicker
-                  selected={newEvent.end}
-                  onChange={(date) => handleEventChange("end", date)}
+                  selected={newEvent.postDate}
+                  onChange={(date) => setNewEvent((prev) => ({ ...prev, postDate: date }))}
                   showTimeSelect
                   timeFormat="HH:mm"
                   timeIntervals={15}
                   dateFormat="MM/dd/yyyy h:mm aa"
+                  minDate={new Date()} // Prevent selecting past dates
+                  placeholderText="Select post date and time"
                 />
               </Box>
             </ModalBody>
             <ModalFooter>
-              <Flex gap="10px">
-                <Button
-                  colorScheme="blue"
-                  borderRadius="3px"
-                  onClick={handleAddEvent} // Call add event only if validation passes
-                >
-                  Add to Queue
-                </Button>
-              </Flex>
+              <Button colorScheme="blue" borderRadius="3px" onClick={handleAddEvent}>
+                Schedule Post
+              </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
 
-        {/* Calendar component with delete functionality */}
+        {/* Calendar component */}
         <Calendar
           localizer={localizer}
           events={allEvents}
-          startAccessor="start"
-          endAccessor="end"
+          startAccessor="postDate"
+          endAccessor="postDate"
           style={{ height: "83vh" }}
           onSelectEvent={(event) => {
             setEventToDelete(event);
@@ -212,20 +223,20 @@ const CalendarComponent = () => {
       </Box>
 
       {/* AlertDialog for confirming deletion */}
-      <AlertDialog isOpen={isAlertOpen} onClose={() => setIsAlertOpen(false)}>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        leastDestructiveRef={null}
+      >
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader>Confirm Deletion</AlertDialogHeader>
             <AlertDialogBody>
-              Are you sure you want to delete this event?
+              Are you sure you want to delete this post?
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button onClick={() => setIsAlertOpen(false)}>Cancel</Button>
-              <Button
-                colorScheme="red"
-                ml={3}
-                onClick={handleDeleteEvent}
-              >
+              <Button colorScheme="red" onClick={handleDeleteEvent} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>
