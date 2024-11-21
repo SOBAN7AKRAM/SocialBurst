@@ -1,59 +1,50 @@
+import React from "react";
 import { Box, Button, Flex, Icon, Img, Text } from "@chakra-ui/react";
-import { MdAccountCircle } from "react-icons/md";
-
+import { MdAccountCircle, MdCloudDone } from "react-icons/md";
+import { Link, useNavigate } from "react-router-dom";
 import AltSideBar from "../components/AltSideBar";
-import { MdCloudDone } from "react-icons/md";
-import {React,useState} from "react";
-import { Link } from "react-router-dom";
 import AltNavbar from "../components/AltNavbar";
-import { Channeldelete } from "../components/Channeldelete"
+import { Channeldelete } from "../components/Channeldelete";
+import { useChannels } from "../context"; 
 
 export const Channels = () => {
-  // Mock data for channels
-  const [data, setData] = useState([
-    {
-      id: 1,
-      logo: "https://via.placeholder.com/40", // Replace with actual logos
-      accountName: "John Doe",
-      platformName: "Facebook",
-      profilePic: "https://via.placeholder.com/40", // Replace with actual profile picture
-      ids: "john.doe.fb",
-    },
-    {
-      id: 2,
-      logo: "https://via.placeholder.com/40",
-      accountName: "Jane Smith",
-      platformName: "Twitter",
-      profilePic: "https://via.placeholder.com/40",
-      ids: "jane.smith.tw",
-    },
-  ]);
-
-  // Handle delete channel
-  const handleDelete = (id) => {
-    const updatedData = data.filter((channel) => channel.id !== id);
-    setData(updatedData);
-  };
-
+  const navigate = useNavigate();
+  const { channels, addChannel, deleteChannel } = useChannels();
 
   return (
     <Box>
       <AltNavbar />
       <Box>
         <Flex>
-          {/* Sidebar */}
-          <AltSideBar/>
+          
+          <AltSideBar />
 
-          {/* Main Content */}
-          <Box m="auto" w="100%" h="100vh" bg="#f5f5f5">
+          
+          <Box
+            ml="250px" 
+            mt="68px" 
+            bg="#f5f5f5"
+            w="calc(100% - 250px)" 
+            h="calc(100vh - 68px)" 
+            overflowY="auto" 
+            css={{
+              
+              "&::-webkit-scrollbar": {
+                display: "none", 
+              },
+              "&": {
+                scrollbarWidth: "none", 
+              },
+            }}
+          >
             <Flex
               m="auto"
               w={["90%", "90%", "60%", "50%"]}
-              h="100%"
+              h="100%" 
               justifyContent="center"
             >
               <Box w="100%">
-                {/* Header */}
+                
                 <Flex
                   w="100%"
                   justifyContent="space-between"
@@ -64,14 +55,14 @@ export const Channels = () => {
                   <Text fontSize="4xl" as="b">
                     Channels
                   </Text>
-                  <Link to={"/channels/addchannel"}>
+                  <Link to="/channels/addchannel">
                     <Button bg="#2c4bff" color="white">
                       Connect channel
                     </Button>
                   </Link>
                 </Flex>
 
-                {/* Info Box */}
+                
                 <Box
                   pl="35px"
                   pr="35px"
@@ -93,15 +84,15 @@ export const Channels = () => {
                   </Text>
                 </Box>
 
-                {/* Channels Connected */}
+                
                 <Box p="15px">
                   <Text fontSize="xl" as="b">
-                    {data.length} Channels Connected
+                    {channels.length} Channels Connected
                   </Text>
                 </Box>
 
-                {/* Render Channels */}
-                {data.map((item) => (
+                
+                {channels.map((item) => (
                   <Box
                     key={item.id}
                     shadow="rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;"
@@ -113,7 +104,7 @@ export const Channels = () => {
                       justifyContent="space-between"
                       alignItems="center"
                     >
-                      {/* Left Section */}
+                      
                       <Flex gap="10px" alignItems="center">
                         <Img
                           w="40px"
@@ -128,7 +119,7 @@ export const Channels = () => {
                           <Text>{item.ids}</Text>
                         </Box>
                       </Flex>
-                      {/* Right Section */}
+                      
                       <Box>
                         <Flex alignItems="center" gap={5}>
                           <Icon
@@ -139,13 +130,24 @@ export const Channels = () => {
                           />
                           <Channeldelete
                             id={item.id}
-                            onDelete={handleDelete}
+                            onDelete={deleteChannel}
                           />
                         </Flex>
                       </Box>
                     </Flex>
                   </Box>
                 ))}
+
+                
+                <Flex justifyContent="flex-start" p="10px">
+                  <Button
+                    bg="#2c4bff"
+                    color="white"
+                    onClick={() => navigate("/Workspace")}
+                  >
+                    Back to Workspace
+                  </Button>
+                </Flex>
               </Box>
             </Flex>
           </Box>
@@ -154,3 +156,4 @@ export const Channels = () => {
     </Box>
   );
 };
+

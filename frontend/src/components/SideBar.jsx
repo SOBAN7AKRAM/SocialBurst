@@ -5,15 +5,20 @@ import { HiTrendingUp } from "react-icons/hi";
 import { TbList } from "react-icons/tb";
 import { NavLink } from "react-router-dom";
 
-const sideBar = () => {
+const SideBar = () => {
   return (
     <>
       <Flex
         direction="column"
         justifyContent="space-between"
-        w="16%"
-        h="90vh"
+        w="250px" // Set the width to be consistent with previous layout
+        h="calc(100vh - 68px)" // Account for the height of the AltNavbar
         borderRight="1px solid #c7c7c7"
+        position="fixed" // Fixed positioning to stay on the left
+        top="68px" // Start after the AltNavbar
+        left="0"
+        bg="white"
+        zIndex="10"
       >
         <Box mt="15px" w="100%">
           <Flex
@@ -102,4 +107,4 @@ const sideBar = () => {
   );
 };
 
-export default sideBar;
+export default SideBar;

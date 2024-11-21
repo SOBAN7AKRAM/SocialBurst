@@ -1,5 +1,5 @@
 import React from "react";
-import {Divider,Flex,Icon,Box} from "@chakra-ui/react"
+import { Divider, Flex, Icon, Box } from "@chakra-ui/react";
 import { RiMoneyDollarBoxLine } from "react-icons/ri";
 import { TbBox } from "react-icons/tb";
 import { MdAccountCircle } from "react-icons/md";
@@ -7,7 +7,15 @@ import { GrOrganization } from "react-icons/gr";
 
 const AltSideBar = () => {
   return (
-    <Box h="100vh" bg="#f5f5f5" w="200px" p="10px">
+    <Box
+      position="fixed"
+      top="68px" 
+      left="0"
+      width="250px" 
+      height="calc(100vh - 60px)" 
+      bg="gray.100"
+      boxShadow="rgba(0, 0, 0, 0.1) 0px 4px 12px"
+    >
       <Box pl="10px">Settings</Box>
       <Divider borderColor="black.200" mt="4%" mb="4%" />
       <Flex flexDirection="column" pl="10px">
