@@ -75,7 +75,7 @@ const sideBar = () => {
           </Box>
         </Box>
         <Box mb="10px">
-          <NavLink to="/channels">
+          <NavLink to="/Channels">
             <Flex
               justifyContent="center"
               alignItems="center"

@@ -4,6 +4,7 @@ import App from '../App'
 import WorkSpace from '../pages/WorkSpace'
 import SignIn from '../pages/Login'
 import SignUp from '../pages/SignUp'
+import { Channels } from '../pages/Channels'
 
 const router = createBrowserRouter([{
     path:"/",
@@ -20,6 +21,10 @@ const router = createBrowserRouter([{
     {
         path:"/WorkSpace",
         element:<WorkSpace/>,
-    }
+    },
+    {
+        path:"/Channels",
+        element:<Channels/>,
+    },
 ])
 export default router
