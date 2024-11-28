@@ -100,34 +100,6 @@ class VerifyOtpTests(APITestCase):
         em_v = EmailVerification.objects.get(email = data['email'])
         self.assertEqual(em_v.is_verified, False)
 
-# class LogoutTestCase(APITestCase):
-
-#     def setUp(self):
-#         self.url = reverse("logout")
-#         # Set up a user and generate a token
-#         self.user = User.objects.create_user(email='testuser@example.com', password='testpassword')
-#         self.token = Token.objects.create(user=self.user)
-#         self.client = APIClient()
-#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-
-#     def test_logout_success(self):
-#         """Test that a user can log out successfully."""
-#         response = self.client.post(self.url)  # Call the logout endpoint
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data, {"success": "Logged out successfully"})
-
-#         # Verify that the token is deleted after logout
-#         with self.assertRaises(Token.DoesNotExist):
-#             Token.objects.get(user=self.user)
-
-#     def test_logout_without_token(self):
-#         """Test logout without sending token."""
-#         # Clear the credentials, so no token is passed in the request
-#         self.client.credentials()
-#         response = self.client.post(self.url)
-#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(response.data, {"error": "Invalid token or user not logged in"})
-
 class SignInTests(APITestCase):
     
     def setUp(self):

@@ -1,15 +1,20 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework import status
 from django.middleware.csrf import get_token
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from .serializers import EmailVerificationSerializer, UserSerializer
-from .models import EmailVerification, User
+from .models import EmailVerification, User, SocialMediaAccount
 import numpy as np
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import redirect
+from requests_oauthlib import OAuth2Session
+from django.urls import reverse
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
@@ -126,3 +131,45 @@ def logout(request):
             return Response({"success": "Logged out successfully"}, status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response({"error": "Invalid or already blacklisted token"}, status=status.HTTP_400_BAD_REQUEST)
+        
+class FacebookLoginView(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        facebook = OAuth2Session(
+            client_id=settings.SOCIAL_AUTH_FACEBOOK_KEY,
+            redirect_uri=request.build_absolute_uri(reverse('facebook-callback'))
+        )
+        authorization_url, state = facebook.authorization_url(
+            'https://www.facebook.com/v11.0/dialog/oauth',
+            access_type="offline"
+        )
+        request.session['oauth_state'] = state
+        return redirect(authorization_url)
+    
+class FacebookCallbackView(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        facebook = OAuth2Session(
+            client_id=settings.SOCIAL_AUTH_FACEBOOK_KEY,
+            redirect_uri=request.build_absolute_uri(reverse('facebook-callback')),
+            state=request.session.get('oauth_state')
+        )
+        token = facebook.fetch_token(
+            'https://graph.facebook.com/v11.0/oauth/access_token',
+            client_secret=settings.SOCIAL_AUTH_FACEBOOK_SECRET,
+            authorization_response=request.build_absolute_uri()
+        )
+        # Save token and account details
+        user = request.user
+        social_account, created = SocialMediaAccount.objects.update_or_create(
+            user=user,
+            platform='facebook',
+            defaults={
+                'access_token': token['access_token'],
+                'refresh_token': token.get('refresh_token'),
+                'expires_at': token.get('expires_at')
+            }
+        )
+        return Response({"message": "Facebook account linked successfully!"})

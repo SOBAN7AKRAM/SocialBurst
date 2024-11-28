@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, Group, Permission
 from django.utils import timezone
 
+
 # Create your models here.
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -57,34 +58,72 @@ class SocialMediaAccount(models.Model):
         ('facebook', 'Facebook'),
         ('instagram', 'Instagram'),
         ('youtube', 'YouTube'),
-        # Add more platforms as needed...
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES)
     account_id = models.CharField(max_length=255)
     access_token = models.CharField(max_length=255)
+    refresh_token = models.CharField(max_length=255, null=True, blank=True)  # Optional
+    expires_at = models.DateTimeField(null=True, blank=True)  # Track token expiry
     additional_info = models.JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.platform}"
+
+class FacebookPage(models.Model):
+    social_account = models.ForeignKey(SocialMediaAccount, on_delete=models.CASCADE, related_name='pages')
+    page_id = models.CharField(max_length=255)  # Unique page ID from Facebook API
+    page_name = models.CharField(max_length=255)  # Page name
+    page_access_token = models.CharField(max_length=255)  # Token specific to the page
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+class FacebookGroup(models.Model):
+    social_account = models.ForeignKey(SocialMediaAccount, on_delete=models.CASCADE, related_name='groups')
+    group_id = models.CharField(max_length=255)  # Unique group ID from Facebook API
+    group_name = models.CharField(max_length=255)  # Group name
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    platform = models.CharField(max_length=50)  # 'Instagram', 'YouTube', etc.
-    post_id = models.CharField(max_length=100)  # ID returned by the platform's API
+    social_account = models.ForeignKey(SocialMediaAccount, on_delete=models.CASCADE, related_name='posts')
+    post_id = models.CharField(max_length=100, null=True, blank=True)  # For API-generated IDs
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    video_url = models.URLField()  # URL of the uploaded video on the platform
-    status = models.CharField(max_length=50)  # 'posted', 'scheduled', 'failed'
-    scheduled_time = models.DateTimeField(null=True, blank=True)  # If scheduling is used
+    video_url = models.URLField()
+    media_url = models.URLField(null=True, blank=True)  # Optional for additional media
+    status = models.CharField(
+        max_length=50,
+        choices=[('posted', 'Posted'), ('scheduled', 'Scheduled'), ('failed', 'Failed')],
+        default='scheduled'
+    )
+    scheduled_time = models.DateTimeField(null=True, blank=True)  # This can be None if it's not scheduled
     created_at = models.DateTimeField(auto_now_add=True)
-    
-class ScheduledPost(models.Model):
-    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='scheduled_posts')
-    scheduled_time = models.DateTimeField()
-    status = models.CharField(max_length=50, choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')], default='pending')
-    created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
-        return f"Scheduled Post: {self.post.title} for {self.scheduled_time}"
+        return f"Post: {self.title} ({self.status})"
 
     def is_past_due(self):
-        return self.scheduled_time <= timezone.now()
+        # Check if the post's scheduled time has passed
+        return self.scheduled_time and self.scheduled_time <= timezone.now()
+
+    def schedule_post(self, scheduled_time):
+        """Set a post to be scheduled at a specific time."""
+        self.scheduled_time = scheduled_time
+        self.status = 'scheduled'
+        self.save()
+
+    def mark_as_posted(self):
+        """Mark the post as successfully posted."""
+        self.status = 'posted'
+        self.save()
+
+    def mark_as_failed(self, reason=None):
+        """Mark the post as failed and log the reason."""
+        self.status = 'failed'
+        self.save()
+        # Optionally log the failure reason, if applicable
+        
+
+

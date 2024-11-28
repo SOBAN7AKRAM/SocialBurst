@@ -1,29 +1,109 @@
+# services:
+#   # React frontend
+#   frontend:
+#     build:
+#       context: ./frontend  # Path to your React frontend directory
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"  # Maps port 3000 in the container to port 3000 on your host
+#     environment:
+#       - CHOKIDAR_USEPOLLING=true  # Ensure file watching works inside Docker
+#     develop:
+#       watch:
+#         - action: sync
+#           path: ./frontend/src
+#           target: /app/src
+#         - action: rebuild
+#           path: ./frontend/package.json
+#     stdin_open: true  # Keep the container open
+#     tty: true  # Allocate a pseudo-TTY for the container
+    
+#   # Django backend
+#   backend:
+#     build:
+#       context: ./backend  # Path to your Django backend directory
+#     ports:
+#       - "8000:8000"  # Maps port 8000 in the container to port 8000 on your host
+#     env_file: 
+#       - .env  # Load environment variables from .env in the main directory
+#     environment:
+#       - DATABASE_URL=${DATABASE_URL}
+#     depends_on:
+#       - mysql
+#     volumes:
+#       - ./backend:/app  # Mounts your Django backend code into the container
+#     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+#   # MySQL database
+#   mysql:
+#     image: mysql:8.0
+#     environment:
+#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#       MYSQL_DATABASE: ${MYSQL_DATABASE}
+#       MYSQL_USER: ${MYSQL_USER}
+#       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+#     ports:
+#       - "3306:3306"  # Maps port 3306 in the container to port 3306 on your host
+#     volumes:
+#       - mysql_data:/var/lib/mysql  # Persist data between container restarts
+
+# volumes:
+#   mysql_data:
+
+
 services:
+  # Traefik reverse proxy
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.insecure=true" # Enable the Traefik dashboard for development only
+      - "--providers.docker=true" # Use Docker as the provider for configuration
+      - "--entrypoints.web.address=:80" # Define HTTP entrypoint
+      - "--entrypoints.websecure.address=:443" # Define HTTPS entrypoint
+      - "--certificatesresolvers.devhttps.acme.tlschallenge=true" # Use TLS challenge for certs
+      - "--certificatesresolvers.devhttps.acme.email=youremail@example.com" # Replace with your email
+      - "--certificatesresolvers.devhttps.acme.storage=/letsencrypt/acme.json" # Path to store certs
+    ports:
+      - "80:80" # Expose HTTP
+      - "443:443" # Expose HTTPS
+      - "8080:8080" # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Required for Traefik to manage Docker services
+      - ./letsencrypt:/letsencrypt # Store certificates
+    networks:
+      - traefik_network
+
   # React frontend
   frontend:
     build:
       context: ./frontend  # Path to your React frontend directory
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"  # Maps port 3000 in the container to port 3000 on your host
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/`)" # Matches all root-level paths
+      - "traefik.http.middlewares.frontend-strip.stripprefix.prefixes=/api"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=devhttps"
+    networks:
+      - traefik_network
     environment:
       - CHOKIDAR_USEPOLLING=true  # Ensure file watching works inside Docker
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend/src
-          target: /app/src
-        - action: rebuild
-          path: ./frontend/package.json
     stdin_open: true  # Keep the container open
     tty: true  # Allocate a pseudo-TTY for the container
-    
+
   # Django backend
   backend:
     build:
       context: ./backend  # Path to your Django backend directory
-    ports:
-      - "8000:8000"  # Maps port 8000 in the container to port 8000 on your host
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api`)" # Access backend via `https://localhost/api/`
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=devhttps"
     env_file: 
       - .env  # Load environment variables from .env in the main directory
     environment:
@@ -33,6 +113,8 @@ services:
     volumes:
       - ./backend:/app  # Mounts your Django backend code into the container
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    networks:
+      - traefik_network
 
   # MySQL database
   mysql:
@@ -47,6 +129,13 @@ services:
       - "3306:3306"  # Maps port 3306 in the container to port 3306 on your host
     volumes:
       - mysql_data:/var/lib/mysql  # Persist data between container restarts
+    networks:
+      - traefik_network
 
 volumes:
   mysql_data:
+  letsencrypt:
+
+networks:
+  traefik_network:
+    driver: bridge

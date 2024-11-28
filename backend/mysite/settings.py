@@ -47,6 +47,7 @@ AUTH_USER_MODEL = 'socialburst.User'
 INSTALLED_APPS = [
     'corsheaders',
     'socialburst',
+    'social_django',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -80,6 +81,21 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',  # React app's URL
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+
+SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('FACEBOOK_APP_ID')
+SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('FACEBOOK_APP_SECRET')
+
+# Redirect URL after login
+LOGIN_REDIRECT_URL = '/'
 
 # Ensure CSRF cookies are set correctly
 CSRF_COOKIE_HTTPONLY = False
