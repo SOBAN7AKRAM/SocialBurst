@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Heading, Input, Button, Text, Alert, AlertIcon, AlertDescription, Link } from "@chakra-ui/react";
 import Login1 from "../Pictures/Login1.jpg";  // Image for the right side
 import { Link as RouterLink } from "react-router-dom";
+import Logo from '../components/Logo.png'
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -93,17 +94,18 @@ const SignUp = () => {
           overflowY="auto" // Adds scrolling
           paddingLeft="4%"
           paddingRight="4%"
-          paddingTop="6vh"
+          paddingTop="3vh"
           style={{ maxHeight: '100vh' }} // Ensure it stays within viewport height
         >
           <Link to={"/"}>
-            <img style={{ width: "35%" }} src="https://static.buffer.com/login/public/img/buffer-logo.svg" alt="Buffer Logo" />
+            <img style={{ width: "40%" }} className='mx-auto' src={Logo} alt="Buffer Logo" />
+            
           </Link>
 
           {/* Sign Up Form */}
           {step === 'signup' ? (
             <>
-              <Heading mt="6vh" color="rgba(71,71,71,255)">Sign Up</Heading>
+              <Heading mt="1vh" color="rgba(71,71,71,255)">Sign Up</Heading>
               <Heading color="rgba(71,71,71,255)" mt="5vh" fontSize="15px">Email Address</Heading>
               <Input
                 mt="2vh"
@@ -174,9 +176,9 @@ const SignUp = () => {
 
           {/* Footer for already having an account */}
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Heading color="grey" mt="5vh" fontSize="15px">Already have an account?</Heading>
+            <Heading color="grey" mt="5vh" mb="4" fontSize="15px">Already have an account?</Heading>
             <RouterLink to="/login">
-              <Heading color="grey" mt="5vh" fontSize="15px">Log In</Heading>
+              <Heading color="grey" mt="5vh" mb="4" fontSize="15px">Log In</Heading>
             </RouterLink>
           </Box>
         </Box>
@@ -186,6 +188,7 @@ const SignUp = () => {
           width={{ base: '0%', md: '50%', xl: '67%' }}
           height="100vh"
           position="relative"
+          
         >
           <img
             style={{ width: "100%", height: "100%", objectFit: "cover" }}

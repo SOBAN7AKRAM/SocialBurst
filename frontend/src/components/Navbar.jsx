@@ -4,19 +4,18 @@ import { SiGoogleanalytics, SiGooglemessages } from "react-icons/si";
 import { FiPenTool } from "react-icons/fi";
 import { MenuIcon } from "@heroicons/react/outline";
 import { useState } from "react";
+import Logo from './Logo.png'
+
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="flex p-4 justify-between items-center w-full">
+    <div className="flex pr-4 justify-between items-center w-full">
       <Link to="/" className="w-24">
-        <img
-          src="https://seekvectorlogo.net/wp-content/uploads/2020/02/buffer-inc-vector-logo.png"
-          alt="logo"
-          className="w-24"
-        />
+      <img src={Logo} alt="logo" className="w-24" />
+      
       </Link>
       {/* Desktop Menu */}
       <div className="hidden lg:flex gap-12 text-lg">

@@ -6,6 +6,7 @@ import { BsCaretDownFill } from "react-icons/bs";
 import { FaUserCircle } from "react-icons/fa";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import InnerModal from "./InnerModel";
+import Logo from './Logo.png'
 
 const AltNavbar = () => {
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +18,7 @@ const AltNavbar = () => {
         left="0"
         width="100%"
         zIndex="1000"
+        
         bg="white"
         boxShadow="rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"
       >
@@ -33,14 +35,11 @@ const AltNavbar = () => {
           width={["0%", "0%", "0%", "0%", "50%"]}
         >
           <NavLink to="/">
-            <Flex pr="20px" pl="20px" gap="1">
-              <Image
-                w="18px"
-                src="https://static.cdnlogo.com/logos/b/15/buffer.svg"
-              />
-              <Text fontSize="xl" fontWeight="bold">
-                Buffer
-              </Text>
+            <Flex pr="10px" pl="10px" gap="1">
+            <Text fontSize="lg" fontWeight="bold">
+                Social Burst
+            </Text>
+              
             </Flex>
           </NavLink>
           <Flex>
