@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Heading, Input, Button, Text } from "@chakra-ui/react";
 import Login1 from "../Pictures/Login1.jpg";
 import { Link } from "react-router-dom";
+import Logo from '../components/Logo.png'
 import {
   Alert,
   AlertIcon,
@@ -44,12 +45,12 @@ const SignIn = () => {
           overflowY="auto" // Enable scrolling only on this side
           paddingLeft={"4%"} 
           paddingRight="4%" 
-          paddingTop="6vh"
+          paddingTop="3vh"
         >
           <Link to={"/"}> 
-            <img style={{ width: "35%" }} src="https://static.buffer.com/login/public/img/buffer-logo.svg" alt="" />
+            <img style={{ width: "40%" }} className='mx-auto' src={Logo} alt="" />
           </Link>
-          <Heading mt="6vh" color={"rgba(71,71,71,255)"}>Log in</Heading>
+          <Heading mt="1vh" color={"rgba(71,71,71,255)"}>Log in</Heading>
           <Heading color={"rgba(71,71,71,255)"} mt="5vh" fontSize="15px">Email Address</Heading>
           <Input mt="2vh" type={"email"} height="7vh"
             value={email}
@@ -64,7 +65,7 @@ const SignIn = () => {
             <Heading color={"grey"} mt="5vh" fontSize="15px">Create an account</Heading>
             <Heading color={"grey"} mt="5vh" fontSize="15px">Forgot your password?</Heading>
           </Box>
-          <Text mt="7vh" fontSize="14px" textAlign={"center"}>
+          <Text mt="4vh" fontSize="14px" textAlign={"center"}>
             We no longer support social sign-on. Please click here to set your password and access your account.
           </Text>
           <Box display="flex" justifyContent={"center"} alignItems="center" paddingBottom={"4"}>
